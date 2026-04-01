@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Lista de vacinas</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f5f3;min-height:100vh;padding:2rem 1rem}
+  .wrap{max-width:720px;margin:0 auto}
+  .card{background:#fff;border:1px solid #e8e6df;border-radius:14px;padding:2rem 1.75rem}
+  .logo-row{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+  .logo-circle{width:38px;height:38px;border-radius:50%;background:#E1F5EE;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .logo-circle svg{width:20px;height:20px}
+  h1{font-size:20px;font-weight:600;color:#1a1a18;line-height:1.3}
+  .subtitle{font-size:13px;color:#888780;margin-top:4px;margin-bottom:1.5rem}
+  .hint{display:flex;align-items:flex-start;gap:8px;background:#f5f5f3;border:1px solid #e8e6df;border-radius:8px;padding:10px 12px;margin-bottom:1.5rem}
+  .hint svg{width:15px;height:15px;flex-shrink:0;margin-top:2px;color:#888780}
+  .hint p{font-size:13px;color:#888780;line-height:1.5}
+  .hint strong{color:#444441}
+  .table-wrap{border:1px solid #e8e6df;border-radius:10px;overflow:hidden;margin-bottom:1rem}
+  table{width:100%;border-collapse:collapse;table-layout:fixed}
+  colgroup col:nth-child(1){width:40px}
+  colgroup col:nth-child(2){width:38%}
+  colgroup col:nth-child(3){width:31%}
+  colgroup col:nth-child(4){width:31%}
+  thead tr{background:#f9f9f7}
+  th{padding:10px 12px;text-align:left;font-size:11px;font-weight:600;color:#888780;border-bottom:1px solid #e8e6df;text-transform:uppercase;letter-spacing:.04em}
+  th:first-child{text-align:center}
+  tbody tr{border-bottom:1px solid #e8e6df;transition:background .1s}
+  tbody tr:last-child{border-bottom:none}
+  tbody tr:hover{background:#fafaf8}
+  td{padding:5px 8px;vertical-align:middle}
+  td:first-child{text-align:center;font-size:12px;color:#b4b2a9;font-weight:500}
+  td input{width:100%;border:none;background:transparent;font-size:14px;color:#1a1a18;padding:5px 4px;border-radius:4px;outline:none;font-family:inherit}
+  td input:focus{background:#EAF3DE;color:#27500A}
+  td input::placeholder{color:#b4b2a9;font-size:13px}
+  .row-actions{display:flex;align-items:center;gap:8px;margin-bottom:1.5rem}
+  .btn-add{display:flex;align-items:center;gap:6px;background:none;border:1px solid #d3d1c7;border-radius:8px;padding:7px 14px;font-size:13px;color:#5f5e5a;cursor:pointer;transition:background .1s;font-family:inherit}
+  .btn-add:hover{background:#f5f5f3;color:#1a1a18}
+  .btn-add svg{width:13px;height:13px}
+  .btn-clear{display:flex;align-items:center;gap:6px;background:none;border:1px solid #f0c0c0;border-radius:8px;padding:7px 14px;font-size:13px;color:#a32d2d;cursor:pointer;transition:background .1s;font-family:inherit}
+  .btn-clear:hover{background:#fcebeb}
+  .btn-clear svg{width:13px;height:13px}
+  .counter{font-size:13px;color:#b4b2a9;margin-left:auto}
+  .btn-send{width:100%;padding:13px;background:#1D9E75;border:none;border-radius:9px;color:#fff;font-size:15px;font-weight:600;cursor:pointer;transition:background .15s,transform .1s;font-family:inherit;letter-spacing:.01em}
+  .btn-send:hover{background:#0F6E56}
+  .btn-send:active{transform:scale(0.99)}
+  .btn-send:disabled{background:#d3d1c7;color:#888780;cursor:not-allowed;transform:none}
+
+  /* confirmação */
+  .confirm-view{display:none;text-align:center;padding:1rem 0}
+  .check-circle{width:60px;height:60px;border-radius:50%;background:#E1F5EE;display:flex;align-items:center;justify-content:center;margin:0 auto 1.25rem}
+  .check-circle svg{width:30px;height:30px}
+  .confirm-view h2{font-size:20px;font-weight:600;color:#1a1a18;margin-bottom:8px}
+  .confirm-view p{font-size:14px;color:#5f5e5a;line-height:1.6;margin-bottom:1.25rem}
+  .summary-box{background:#f5f5f3;border:1px solid #e8e6df;border-radius:8px;padding:14px 16px;margin-bottom:1.5rem;text-align:left}
+  .summary-box p{font-size:13px;color:#5f5e5a;line-height:1.8}
+  .summary-box strong{color:#1a1a18;font-weight:600}
+  .btn-nova{width:100%;padding:12px;background:none;border:1px solid #d3d1c7;border-radius:9px;font-size:14px;font-weight:600;color:#1a1a18;cursor:pointer;transition:background .1s;font-family:inherit}
+  .btn-nova:hover{background:#f5f5f3}
+
+  /* erro */
+  .toast{display:none;align-items:flex-start;gap:8px;background:#fcebeb;border:1px solid #f09595;border-radius:8px;padding:10px 14px;margin-bottom:1rem}
+  .toast svg{width:15px;height:15px;flex-shrink:0;margin-top:2px;color:#a32d2d}
+  .toast p{font-size:13px;color:#791f1f;line-height:1.5}
+  .toast.show{display:flex}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="card">
+
+    <!-- FORMULÁRIO -->
+    <div id="form-view">
+      <div class="logo-row">
+        <div class="logo-circle">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#0F6E56" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          </svg>
+        </div>
+        <h1>Lista de vacinas</h1>
+      </div>
+      <p class="subtitle">Preencha as informações de cada paciente e clique em enviar ao terminar.</p>
+
+      <div class="hint">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <p>Digite um paciente por linha. Clique em <strong>+ Adicionar linha</strong> para incluir mais. Ao enviar, a lista chega automaticamente para o consultório.</p>
+      </div>
+
+      <div id="toast" class="toast">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <p id="toast-msg">Erro ao enviar.</p>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <colgroup><col/><col/><col/><col/></colgroup>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Nome completo do paciente</th>
+              <th>Vacina</th>
+              <th>Via de administração</th>
+            </tr>
+          </thead>
+          <tbody id="tbody"></tbody>
+        </table>
+      </div>
+
+      <div class="row-actions">
+        <button class="btn-add" onclick="addRow()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Adicionar linha
+        </button>
+        <button class="btn-clear" onclick="limparTudo()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+          Limpar tudo
+        </button>
+        <span class="counter" id="counter">1 paciente</span>
+      </div>
+
+      <button class="btn-send" id="btn-send" onclick="enviar()">Enviar lista</button>
+    </div>
+
+    <!-- CONFIRMAÇÃO -->
+    <div class="confirm-view" id="confirm-view">
+      <div class="check-circle">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#0F6E56" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="20 6 9 17 4 12"/>
+        </svg>
+      </div>
+      <h2>Lista enviada!</h2>
+      <p>As informações foram registradas e estão prontas para serem impressas no consultório.</p>
+      <div class="summary-box">
+        <p id="summary-text"></p>
+      </div>
+      <button class="btn-nova" onclick="novaLista()">Enviar nova lista</button>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  var GITHUB_TOKEN = "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";
+  var GITHUB_REPO  = "Cainho-pt-br/Vacinas";
+  var FILE_PATH    = "vacinas.json";
+  var API_URL      = "https://api.github.com/repos/" + GITHUB_REPO + "/contents/" + FILE_PATH;
+
+  var rowCount = 0;
+
+  function addRow(nome, vacina, via) {
+    rowCount++;
+    var tbody = document.getElementById('tbody');
+    var tr = document.createElement('tr');
+    tr.innerHTML =
+      '<td>' + rowCount + '</td>' +
+      '<td><input type="text" placeholder="Ex: Maria Santos" value="' + (nome||'') + '" oninput="updateCounter()"/></td>' +
+      '<td><input type="text" placeholder="Ex: Influenza" value="' + (vacina||'') + '"/></td>' +
+      '<td><input type="text" placeholder="Ex: Intramuscular" value="' + (via||'') + '"/></td>';
+    tbody.appendChild(tr);
+    updateCounter();
+  }
+
+  function updateCounter() {
+    var n = document.querySelectorAll('#tbody tr').length;
+    document.getElementById('counter').textContent = n === 1 ? '1 paciente' : n + ' pacientes';
+  }
+
+  function limparTudo() {
+    if (!confirm('Apagar todas as linhas?')) return;
+    document.getElementById('tbody').innerHTML = '';
+    rowCount = 0;
+    addRow();
+  }
+
+  function showToast(msg) {
+    var t = document.getElementById('toast');
+    document.getElementById('toast-msg').textContent = msg;
+    t.classList.add('show');
+    setTimeout(function(){ t.classList.remove('show'); }, 6000);
+  }
+
+  async function enviar() {
+    var trs = document.querySelectorAll('#tbody tr');
+    var dados = [];
+    trs.forEach(function(tr) {
+      var inputs = tr.querySelectorAll('input');
+      var nome   = inputs[0].value.trim();
+      var vacina = inputs[1].value.trim();
+      var via    = inputs[2].value.trim();
+      if (nome || vacina || via) dados.push({nome: nome, vacina: vacina, via: via});
+    });
+
+    if (dados.length === 0) {
+      showToast('Preencha ao menos um paciente antes de enviar.');
+      return;
+    }
+
+    var incompletos = dados.filter(function(d){ return !d.nome || !d.vacina || !d.via; });
+    if (incompletos.length > 0) {
+      if (!confirm(incompletos.length + ' linha(s) com campos vazios. Deseja enviar assim mesmo?')) return;
+    }
+
+    var btn = document.getElementById('btn-send');
+    btn.disabled = true;
+    btn.textContent = 'Enviando...';
+
+    try {
+      // Busca arquivo existente para pegar o SHA (necessário para atualizar)
+      var existente = [];
+      var sha = null;
+      var getResp = await fetch(API_URL, {
+        headers: {
+          'Authorization': 'token ' + GITHUB_TOKEN,
+          'Accept': 'application/vnd.github.v3+json'
+        }
+      });
+
+      if (getResp.ok) {
+        var getJson = await getResp.json();
+        sha = getJson.sha;
+        var decoded = atob(getJson.content.replace(/\n/g, ''));
+        existente = JSON.parse(decoded);
+      }
+
+      // Acumula novos dados
+      var novaLista = existente.concat(dados);
+      var conteudo = btoa(unescape(encodeURIComponent(JSON.stringify(novaLista, null, 2))));
+
+      var body = {
+        message: 'Nova lista: ' + dados.length + ' paciente(s) — ' + new Date().toLocaleString('pt-BR'),
+        content: conteudo
+      };
+      if (sha) body.sha = sha;
+
+      var putResp = await fetch(API_URL, {
+        method: 'PUT',
+        headers: {
+          'Authorization': 'token ' + GITHUB_TOKEN,
+          'Accept': 'application/vnd.github.v3+json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(body)
+      });
+
+      if (!putResp.ok) {
+        var err = await putResp.json();
+        throw new Error(err.message || 'Erro ao salvar no GitHub.');
+      }
+
+      // Sucesso
+      var total = novaLista.length;
+      document.getElementById('summary-text').innerHTML =
+        '<strong>' + dados.length + ' ' + (dados.length === 1 ? 'paciente enviado' : 'pacientes enviados') + '</strong> agora.<br>' +
+        'Fila total no consultório: <strong>' + total + ' ' + (total === 1 ? 'paciente' : 'pacientes') + '</strong>.<br>' +
+        'Horário: ' + new Date().toLocaleString('pt-BR', {day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
+
+      document.getElementById('form-view').style.display = 'none';
+      document.getElementById('confirm-view').style.display = 'block';
+
+    } catch(e) {
+      showToast('Falha ao enviar: ' + e.message);
+      btn.disabled = false;
+      btn.textContent = 'Enviar lista';
+    }
+  }
+
+  function novaLista() {
+    document.getElementById('tbody').innerHTML = '';
+    rowCount = 0;
+    addRow();
+    document.getElementById('confirm-view').style.display = 'none';
+    document.getElementById('form-view').style.display = 'block';
+    var btn = document.getElementById('btn-send');
+    btn.disabled = false;
+    btn.textContent = 'Enviar lista';
+  }
+
+  addRow();
+</script>
+</body>
+</html>
