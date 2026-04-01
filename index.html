@@ -47,8 +47,6 @@
   .btn-send:hover{background:#0F6E56}
   .btn-send:active{transform:scale(0.99)}
   .btn-send:disabled{background:#d3d1c7;color:#888780;cursor:not-allowed;transform:none}
-
-  /* confirmação */
   .confirm-view{display:none;text-align:center;padding:1rem 0}
   .check-circle{width:60px;height:60px;border-radius:50%;background:#E1F5EE;display:flex;align-items:center;justify-content:center;margin:0 auto 1.25rem}
   .check-circle svg{width:30px;height:30px}
@@ -59,8 +57,6 @@
   .summary-box strong{color:#1a1a18;font-weight:600}
   .btn-nova{width:100%;padding:12px;background:none;border:1px solid #d3d1c7;border-radius:9px;font-size:14px;font-weight:600;color:#1a1a18;cursor:pointer;transition:background .1s;font-family:inherit}
   .btn-nova:hover{background:#f5f5f3}
-
-  /* erro */
   .toast{display:none;align-items:flex-start;gap:8px;background:#fcebeb;border:1px solid #f09595;border-radius:8px;padding:10px 14px;margin-bottom:1rem}
   .toast svg{width:15px;height:15px;flex-shrink:0;margin-top:2px;color:#a32d2d}
   .toast p{font-size:13px;color:#791f1f;line-height:1.5}
@@ -70,8 +66,6 @@
 <body>
 <div class="wrap">
   <div class="card">
-
-    <!-- FORMULÁRIO -->
     <div id="form-view">
       <div class="logo-row">
         <div class="logo-circle">
@@ -82,17 +76,14 @@
         <h1>Lista de vacinas</h1>
       </div>
       <p class="subtitle">Preencha as informações de cada paciente e clique em enviar ao terminar.</p>
-
       <div class="hint">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
         <p>Digite um paciente por linha. Clique em <strong>+ Adicionar linha</strong> para incluir mais. Ao enviar, a lista chega automaticamente para o consultório.</p>
       </div>
-
       <div id="toast" class="toast">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-        <p id="toast-msg">Erro ao enviar.</p>
+        <p id="toast-msg"></p>
       </div>
-
       <div class="table-wrap">
         <table>
           <colgroup><col/><col/><col/><col/></colgroup>
@@ -107,7 +98,6 @@
           <tbody id="tbody"></tbody>
         </table>
       </div>
-
       <div class="row-actions">
         <button class="btn-add" onclick="addRow()">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
@@ -119,11 +109,9 @@
         </button>
         <span class="counter" id="counter">1 paciente</span>
       </div>
-
       <button class="btn-send" id="btn-send" onclick="enviar()">Enviar lista</button>
     </div>
 
-    <!-- CONFIRMAÇÃO -->
     <div class="confirm-view" id="confirm-view">
       <div class="check-circle">
         <svg viewBox="0 0 24 24" fill="none" stroke="#0F6E56" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -137,16 +125,10 @@
       </div>
       <button class="btn-nova" onclick="novaLista()">Enviar nova lista</button>
     </div>
-
   </div>
 </div>
 
 <script>
-  var GITHUB_TOKEN = "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";
-  var GITHUB_REPO  = "Cainho-pt-br/Vacinas";
-  var FILE_PATH    = "vacinas.json";
-  var API_URL      = "https://api.github.com/repos/" + GITHUB_REPO + "/contents/" + FILE_PATH;
-
   var rowCount = 0;
 
   function addRow(nome, vacina, via) {
@@ -207,50 +189,16 @@
     btn.textContent = 'Enviando...';
 
     try {
-      // Busca arquivo existente para pegar o SHA (necessário para atualizar)
-      var existente = [];
-      var sha = null;
-      var getResp = await fetch(API_URL, {
-        headers: {
-          'Authorization': 'token ' + GITHUB_TOKEN,
-          'Accept': 'application/vnd.github.v3+json'
-        }
-      });
-
-      if (getResp.ok) {
-        var getJson = await getResp.json();
-        sha = getJson.sha;
-        var decoded = atob(getJson.content.replace(/\n/g, ''));
-        existente = JSON.parse(decoded);
-      }
-
-      // Acumula novos dados
-      var novaLista = existente.concat(dados);
-      var conteudo = btoa(unescape(encodeURIComponent(JSON.stringify(novaLista, null, 2))));
-
-      var body = {
-        message: 'Nova lista: ' + dados.length + ' paciente(s) — ' + new Date().toLocaleString('pt-BR'),
-        content: conteudo
-      };
-      if (sha) body.sha = sha;
-
-      var putResp = await fetch(API_URL, {
+      var resp = await fetch('/api/vacinas', {
         method: 'PUT',
-        headers: {
-          'Authorization': 'token ' + GITHUB_TOKEN,
-          'Accept': 'application/vnd.github.v3+json',
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(body)
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ novosDados: dados })
       });
 
-      if (!putResp.ok) {
-        var err = await putResp.json();
-        throw new Error(err.message || 'Erro ao salvar no GitHub.');
-      }
+      var json = await resp.json();
+      if (!resp.ok) throw new Error(json.error || 'Erro desconhecido');
 
-      // Sucesso
-      var total = novaLista.length;
+      var total = json.total;
       document.getElementById('summary-text').innerHTML =
         '<strong>' + dados.length + ' ' + (dados.length === 1 ? 'paciente enviado' : 'pacientes enviados') + '</strong> agora.<br>' +
         'Fila total no consultório: <strong>' + total + ' ' + (total === 1 ? 'paciente' : 'pacientes') + '</strong>.<br>' +
