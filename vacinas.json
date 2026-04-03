@@ -1,0 +1,12 @@
+[
+  {
+    "nome": "Maria Santos",
+    "vacina": "PDI3",
+    "via": "ORAL"
+  },
+  {
+    "nome": "Denise",
+    "vacina": "PD3",
+    "via": "INJETÁVEL"
+  }
+]
