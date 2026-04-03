@@ -9,7 +9,7 @@ function githubRequest(method, body, token) {
       path: '/repos/Cainho-pt-br/Vacinas/contents/vacinas.json',
       method: method,
       headers: {
-        'Authorization': `token ${token}`,
+        'Authorization': 'token ' + token,
         'Accept': 'application/vnd.github.v3+json',
         'User-Agent': 'vacinas-app',
         'Content-Type': 'application/json',
@@ -30,7 +30,7 @@ function githubRequest(method, body, token) {
 async function enviarEmail(novos, totalFila) {
   const user = process.env.GMAIL_USER;
   const pass = process.env.GMAIL_APP_PASSWORD;
-  if (!user || !pass) { console.log('Email nao configurado'); return; }
+  if (!user || !pass) throw new Error('GMAIL_USER ou GMAIL_APP_PASSWORD nao configurado');
 
   const transporter = nodemailer.createTransport({ service: 'gmail', auth: { user, pass } });
 
@@ -39,14 +39,14 @@ async function enviarEmail(novos, totalFila) {
     day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit',
   });
 
-  const linhas = novos.map((p, i) =>
-    '<tr><td style="padding:6px 12px;border:1px solid #ddd;text-align:center">' + (i+1) + '</td>' +
+  const linhas = novos.map(function(p, i) {
+    return '<tr><td style="padding:6px 12px;border:1px solid #ddd;text-align:center">' + (i+1) + '</td>' +
     '<td style="padding:6px 12px;border:1px solid #ddd">' + (p.nome||'') + '</td>' +
     '<td style="padding:6px 12px;border:1px solid #ddd">' + (p.vacina||'') + '</td>' +
-    '<td style="padding:6px 12px;border:1px solid #ddd">' + (p.via||'') + '</td></tr>'
-  ).join('');
+    '<td style="padding:6px 12px;border:1px solid #ddd">' + (p.via||'') + '</td></tr>';
+  }).join('');
 
-  const html = '<div style="font-family:Arial,sans-serif;max-width:600px">' +
+  var html = '<div style="font-family:Arial,sans-serif;max-width:600px">' +
     '<h2 style="color:#1D9E75">Nova lista de vacinas recebida</h2>' +
     '<p><strong>' + novos.length + '</strong> paciente(s) enviado(s) em <strong>' + agora + '</strong>.</p>' +
     '<p>Fila total aguardando impressao: <strong>' + totalFila + ' paciente(s)</strong>.</p>' +
@@ -64,7 +64,6 @@ async function enviarEmail(novos, totalFila) {
     subject: 'Nova lista de vacinas - ' + novos.length + ' paciente(s) (' + agora + ')',
     html: html,
   });
-  console.log('Email enviado para', user);
 }
 
 module.exports = async (req, res) => {
@@ -85,7 +84,7 @@ module.exports = async (req, res) => {
     }
 
     if (req.method === 'PUT') {
-      const { novosDados } = req.body;
+      const novosDados = req.body.novosDados;
       let existente = [];
       let sha = null;
       const get = await githubRequest('GET', null, token);
@@ -97,15 +96,23 @@ module.exports = async (req, res) => {
 
       const novaLista = existente.concat(novosDados);
       const conteudo = Buffer.from(JSON.stringify(novaLista, null, 2)).toString('base64');
-      const body = { message: 'Nova lista: ' + novosDados.length + ' paciente(s)', content: conteudo, ...(sha && { sha }) };
+      const body = { message: 'Nova lista: ' + novosDados.length + ' paciente(s)', content: conteudo };
+      if (sha) body.sha = sha;
 
       const put = await githubRequest('PUT', body, token);
       if (put.status !== 200 && put.status !== 201) {
         return res.status(400).json({ error: put.body.message || 'Erro ao salvar' });
       }
 
-      enviarEmail(novosDados, novaLista.length).catch(e => console.error('Erro email:', e.message));
-      return res.status(200).json({ ok: true, total: novaLista.length });
+      // Envia email e AGUARDA resultado para debug
+      var emailStatus = 'ok';
+      try {
+        await enviarEmail(novosDados, novaLista.length);
+      } catch(emailErr) {
+        emailStatus = emailErr.message;
+      }
+
+      return res.status(200).json({ ok: true, total: novaLista.length, email: emailStatus });
     }
 
     return res.status(405).json({ error: 'Metodo nao permitido' });
