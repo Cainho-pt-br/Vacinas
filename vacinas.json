@@ -48,5 +48,10 @@
     "nome": "Izabella Leal",
     "vacina": "PDI 3",
     "via": "Oral"
+  },
+  {
+    "nome": "Julia Lima",
+    "vacina": "pd 3",
+    "via": "oral"
   }
 ]
