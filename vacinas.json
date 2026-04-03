@@ -68,5 +68,10 @@
     "nome": "Israel da Silva",
     "vacina": "PD 5",
     "via": "Oral"
+  },
+  {
+    "nome": "João Norte",
+    "vacina": "odi 3",
+    "via": "oral"
   }
 ]
