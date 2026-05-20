@@ -8,5 +8,15 @@
     "nome": "douglas santos",
     "vacina": "pdi 1",
     "via": "injetavel"
+  },
+  {
+    "nome": "caio",
+    "vacina": "pd 3",
+    "via": "injetavel"
+  },
+  {
+    "nome": "juliana",
+    "vacina": "pdi 1",
+    "via": "oral"
   }
 ]
