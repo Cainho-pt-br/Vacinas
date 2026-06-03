@@ -1,0 +1,17 @@
+[
+  {
+    "nome": "Joao Aparecido Domingues",
+    "vacina": "PD 1",
+    "via": "oral"
+  },
+  {
+    "nome": "Jose Luiz Soares Lima",
+    "vacina": "PD 4",
+    "via": "oral"
+  },
+  {
+    "nome": "Julia Andreatta",
+    "vacina": "PDI 1 PNU",
+    "via": "injetavel"
+  }
+]
