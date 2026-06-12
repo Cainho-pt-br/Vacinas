@@ -33,5 +33,25 @@
     "nome": "Priscila Izabel Ferreira",
     "vacina": "PD 3 PNU",
     "via": "injetavel"
+  },
+  {
+    "nome": "Alexia Junqueira Maciel",
+    "vacina": "PDI/ATE 3 FORM/ABH",
+    "via": "oral"
+  },
+  {
+    "nome": "Lucas Luan Pereira Feitosa",
+    "vacina": "PDI 4",
+    "via": "oral"
+  },
+  {
+    "nome": "Joao Gabriel Ribas de Toledo",
+    "vacina": "PDI 3",
+    "via": "oral"
+  },
+  {
+    "nome": "Jose Luiz Soares Lima",
+    "vacina": "PD 4",
+    "via": "oral"
   }
 ]
