@@ -168,5 +168,20 @@
     "nome": "JOAO MIGUEL BRANDAO",
     "vacina": "PDI 2",
     "via": "ORAL"
+  },
+  {
+    "nome": "BERNARDO ZERBINI LEMOS",
+    "vacina": "PD 2",
+    "via": "INETAVEL"
+  },
+  {
+    "nome": "ANA MARIA SACCHI MELIM",
+    "vacina": "PDI 4",
+    "via": "ORAL"
+  },
+  {
+    "nome": "JOAO VITOR SACCHI MELIM",
+    "vacina": "PDI 3",
+    "via": "ORAL"
   }
 ]
