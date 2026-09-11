@@ -113,5 +113,50 @@
     "nome": "WALMYR SANTOS MACIEL",
     "vacina": "PDI ABH 1",
     "via": "ORAL"
+  },
+  {
+    "nome": "LORENZO GUTIERREZ VIEIRA",
+    "vacina": "PD 2 ( FORM )",
+    "via": "ORAL"
+  },
+  {
+    "nome": "LUCCA BONUCCI LEME",
+    "vacina": "PD 2 UBE",
+    "via": "ORAL"
+  },
+  {
+    "nome": "THIAGO BATTAGIN",
+    "vacina": "PD 3",
+    "via": "ORAL"
+  },
+  {
+    "nome": "RAPHAELLA FRANCISCA ALVAREZ",
+    "vacina": "PD 4 PNU",
+    "via": "INJETAVEL"
+  },
+  {
+    "nome": "PEDRO LUCAS MARSICANO",
+    "vacina": "PD FORM 2",
+    "via": "ORAL"
+  },
+  {
+    "nome": "LAVINIA FRANÇA RIBEIRO",
+    "vacina": "PD FORM 1",
+    "via": "ORAL"
+  },
+  {
+    "nome": "CESAR AUGUSTO SILVA",
+    "vacina": "PD ABH 1",
+    "via": "ORAL"
+  },
+  {
+    "nome": "CRISTIE REGINA GIANOTTI",
+    "vacina": "PDI 2 ( FORM )",
+    "via": "ORAL"
+  },
+  {
+    "nome": "MIGUEL ROSA PEREIRA",
+    "vacina": "PDI 4",
+    "via": "ORAL"
   }
 ]
