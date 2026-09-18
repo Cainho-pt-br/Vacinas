@@ -158,5 +158,30 @@
     "nome": "MIGUEL ROSA PEREIRA",
     "vacina": "PDI 4",
     "via": "ORAL"
+  },
+  {
+    "nome": "GIOVANI MARQUES TEIXEIRA",
+    "vacina": "PD ( REF)",
+    "via": "INJETAVEL"
+  },
+  {
+    "nome": "DAVI PEREIRA FRANCO",
+    "vacina": "PD 2",
+    "via": "ORAL"
+  },
+  {
+    "nome": "MANUELA MARTINS FLYNN",
+    "vacina": "PD 2",
+    "via": "ORAL"
+  },
+  {
+    "nome": "JULIA FARIA DE OLIVEIRA",
+    "vacina": "PDI 2",
+    "via": "ORAL"
+  },
+  {
+    "nome": "ARTHUR GABRIEL MOISES",
+    "vacina": "PDI 3",
+    "via": "INJETAVEL"
   }
 ]
