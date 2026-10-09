@@ -33,5 +33,20 @@
     "nome": "JOSE LUIZ LIMA",
     "vacina": "PD ( REF )",
     "via": "ORAL"
+  },
+  {
+    "nome": "LUIS GUILHERME LEITE",
+    "vacina": "PD 1",
+    "via": "ORAL"
+  },
+  {
+    "nome": "TATIANA APOLINARIO PEREIRA",
+    "vacina": "PD 3",
+    "via": "ORAL"
+  },
+  {
+    "nome": "SELMA MATOS GODOI",
+    "vacina": "PD 3",
+    "via": "INJETAVEL"
   }
 ]
