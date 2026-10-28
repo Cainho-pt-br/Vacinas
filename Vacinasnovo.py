@@ -209,35 +209,84 @@ def enviar_pdf_por_email(caminho_pdf, impressao_ok):
 # IMPRESSÃO SILENCIOSA (SumatraPDF)
 # ─────────────────────────────────────────────
 
-def garantir_sumatra():
-    """Verifica se SumatraPDF existe. Se não, baixa automaticamente (~15 MB)."""
-    if os.path.exists(SUMATRA_EXE):
-        return SUMATRA_EXE
+# ─────────────────────────────────────────────
+# IMPRESSÃO COM TAMANHO REAL (SumatraPDF)
+# ─────────────────────────────────────────────
 
-    print("SumatraPDF não encontrado. Baixando (~15 MB)...")
+def obter_sumatra():
+    """Localiza o SumatraPDF com prioridade para a pasta local/empacotada tools/."""
+    if getattr(sys, "frozen", False):
+        base = os.path.dirname(sys.executable)
+        meipass = getattr(sys, "_MEIPASS", base)
+    else:
+        base = os.path.dirname(os.path.abspath(__file__))
+        meipass = base
+
+    candidatos = [
+        os.path.join(meipass, "tools", "SumatraPDF.exe"),
+        os.path.join(base, "tools", "SumatraPDF.exe"),
+        os.path.join(os.environ.get("LOCALAPPDATA", ""), "SumatraPDF.exe"),
+        r"C:\Program Files\SumatraPDF\SumatraPDF.exe",
+        r"C:\Program Files (x86)\SumatraPDF\SumatraPDF.exe",
+    ]
+    for c in candidatos:
+        if os.path.exists(c):
+            return c
+
+    return garantir_sumatra()
+
+
+def garantir_sumatra():
+    """Verifica se SumatraPDF existe em %LOCALAPPDATA%. Se não, baixa automaticamente (~15 MB)."""
+    sumatra_local = os.path.join(os.environ.get("LOCALAPPDATA", ""), "SumatraPDF.exe")
+    if os.path.exists(sumatra_local):
+        return sumatra_local
+
+    print("SumatraPDF não encontrado localmente. Baixando (~15 MB)...")
     sumatra_url = "https://www.sumatrapdfreader.org/dl/rel/3.5.2/SumatraPDF-3.5.2-64.exe"
 
     try:
         resp = requests.get(sumatra_url, stream=True, timeout=60)
         resp.raise_for_status()
-        with open(SUMATRA_EXE, "wb") as f:
+        with open(sumatra_local, "wb") as f:
             for chunk in resp.iter_content(chunk_size=8192):
                 f.write(chunk)
-        print(f"SumatraPDF salvo em: {SUMATRA_EXE}")
-        return SUMATRA_EXE
+        print(f"SumatraPDF salvo em: {sumatra_local}")
+        return sumatra_local
     except Exception as e:
-        print(f"ERRO ao baixar SumatraPDF: {e}")
-        if os.path.exists(SUMATRA_EXE):
-            os.remove(SUMATRA_EXE)
+        print(f"Aviso ao baixar SumatraPDF: {e}")
+        if os.path.exists(sumatra_local):
+            os.remove(sumatra_local)
         return None
 
 
 def imprimir_pdf(caminho_pdf):
-    """Abre o PDF no leitor padrão para impressão manual em tamanho real."""
-    print("Abrindo PDF para impressão...")
+    """
+    Abre o PDF para impressão configurando automaticamente 'Tamanho Real' (100% / noscale).
+    Abre o diálogo de impressão na tela e aguarda a confirmação do usuário.
+    """
+    print("Preparando visualização/impressão do PDF...")
+    sumatra = obter_sumatra()
+
+    if sumatra and os.path.exists(sumatra):
+        print(f"Usando SumatraPDF ({sumatra}) com escala travada em Tamanho Real (100%)...")
+        try:
+            # -print-dialog abre a janela do PDF e a caixa de diálogo de impressão com 'noscale' já pré-selecionado
+            subprocess.Popen([
+                sumatra,
+                "-print-dialog",
+                "-print-settings", "noscale",
+                caminho_pdf
+            ])
+            print("Diálogo de impressão aberto no SumatraPDF com Tamanho Real selecionado.")
+            return True
+        except Exception as e:
+            print(f"Erro ao abrir com SumatraPDF: {e}, tentando leitor padrão...")
+
+    # Fallback caso o SumatraPDF não esteja acessível
     try:
         os.startfile(caminho_pdf)
-        print("PDF aberto. Imprima com: Ctrl+P → Tamanho real (100%).")
+        print("PDF aberto no visualizador padrão do Windows. Certifique-se de selecionar 'Tamanho Real' (100%).")
         return True
     except Exception as e:
         print(f"Falha ao abrir PDF: {e}")
@@ -498,6 +547,33 @@ def imprimir_e_salvar(page, context):
     enviar_pdf_por_email(caminho_pdf, impressao_ok)
 
 
+def iniciar_navegador(playwright_instance):
+    """
+    Tenta abrir o navegador com Chrome; se não existir (ex: notebook com Windows 11 sem Chrome),
+    faz fallback automaticamente para Microsoft Edge (nativo do Windows 11) ou Chromium padrão.
+    """
+    canais = ["chrome", "msedge", None]
+    ultimo_erro = None
+    for canal in canais:
+        try:
+            kwargs = {
+                "headless": False,
+                "slow_mo": 100,
+                "args": ["--start-minimized"]
+            }
+            if canal:
+                kwargs["channel"] = canal
+                print(f"Tentando iniciar navegador ({canal})...")
+            else:
+                print("Tentando iniciar Chromium embutido...")
+            return playwright_instance.chromium.launch(**kwargs)
+        except Exception as e:
+            print(f"Não foi possível iniciar com canal '{canal}': {e}")
+            ultimo_erro = e
+            continue
+    raise RuntimeError(f"Não foi possível iniciar nenhum navegador compatível (Chrome ou Edge). Detalhe: {ultimo_erro}")
+
+
 # ─────────────────────────────────────────────
 # MAIN
 # ─────────────────────────────────────────────
@@ -509,12 +585,7 @@ def main():
     print(f"{total} etiquetas para processar.")
 
     with sync_playwright() as p:
-        browser = p.chromium.launch(
-            headless=False,
-            slow_mo=100,
-            channel="chrome",
-            args=["--start-minimized"]
-        )
+        browser = iniciar_navegador(p)
         context = browser.new_context(accept_downloads=True)
         page    = context.new_page()
         page.set_default_timeout(TIMEOUT)
