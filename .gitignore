@@ -1,0 +1,37 @@
+# Arquivos de ambiente e segredos (NUNCA enviar para o GitHub)
+.env
+*.env
+*.key
+*.token
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+build/
+dist/
+*.egg-info/
+
+# PyInstaller e Binários
+*.manifest
+*.spec
+*.exe
+
+# Logs e arquivos temporários
+*.log
+*.tmp
+*.crdownload
+etiquetas_vacinas.pdf
+etiquetas_vacinas.zip
+retangulo.PNG
+
+# IDE e editores
+.vscode/
+.idea/
+.claude/
+*.swp
